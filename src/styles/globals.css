@@ -1,0 +1,23 @@
+@import './typography.css';
+@import './animations.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+  color-scheme: dark;
+}
+
+body {
+  background-color: #071426;
+  color: #F3F0E9;
+  font-family: var(--font-body);
+  overflow-x: hidden;
+}
+
+/* Ensure headings strictly adhere to White requirement */
+h1, h2, .main-title {
+  color: #FFFFFF !important;
+}

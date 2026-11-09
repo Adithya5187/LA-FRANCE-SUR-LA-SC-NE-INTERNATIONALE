@@ -1,0 +1,127 @@
+/* Cinematic Presentation Animations and Reveal Effects */
+
+/* Custom smooth scrollbar */
+::-webkit-scrollbar {
+  width: 7px;
+}
+::-webkit-scrollbar-track {
+  background: #071426;
+}
+::-webkit-scrollbar-thumb {
+  background: #183159;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #244B85;
+}
+
+/* Glassmorphism surfaces */
+.glass-panel {
+  background: rgba(16, 35, 63, 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+}
+
+.glass-panel-subtle {
+  background: rgba(11, 27, 51, 0.45);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.glass-panel-accent {
+  background: rgba(36, 75, 133, 0.25);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(36, 75, 133, 0.4);
+}
+
+/* Image reveal curtain animations */
+@keyframes curtainLeft {
+  0% {
+    clip-path: inset(0 100% 0 0);
+    transform: scale(1.08);
+  }
+  100% {
+    clip-path: inset(0 0 0 0);
+    transform: scale(1.0);
+  }
+}
+
+@keyframes curtainRight {
+  0% {
+    clip-path: inset(0 0 0 100%);
+    transform: scale(1.08);
+  }
+  100% {
+    clip-path: inset(0 0 0 0);
+    transform: scale(1.0);
+  }
+}
+
+@keyframes curtainBottom {
+  0% {
+    clip-path: inset(100% 0 0 0);
+    transform: scale(1.08);
+  }
+  100% {
+    clip-path: inset(0 0 0 0);
+    transform: scale(1.0);
+  }
+}
+
+/* Pulse glow for active elements */
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(36, 75, 133, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 28px rgba(36, 75, 133, 0.8), 0 0 10px rgba(214, 40, 57, 0.4);
+  }
+}
+
+.glow-active {
+  animation: pulseGlow 3s infinite ease-in-out;
+}
+
+/* Subtle floating animation */
+@keyframes floatGentle {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+.float-slow {
+  animation: floatGentle 6s ease-in-out infinite;
+}
+
+/* Typewriter blinking cursor */
+@keyframes cursorBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.cursor-blink {
+  display: inline-block;
+  width: 2px;
+  height: 1.15em;
+  background-color: #34D399;
+  vertical-align: -0.15em;
+  margin-left: 2px;
+  animation: cursorBlink 0.9s infinite;
+}
+
+/* Tricolor gradient bar */
+.french-tricolor-gradient {
+  background: linear-gradient(90deg, #244B85 0%, #244B85 33.3%, #FFFFFF 33.3%, #FFFFFF 66.6%, #D62839 66.6%, #D62839 100%);
+}
+
+.french-tricolor-vertical {
+  background: linear-gradient(180deg, #244B85 0%, #244B85 33.3%, #FFFFFF 33.3%, #FFFFFF 66.6%, #D62839 66.6%, #D62839 100%);
+}
+
