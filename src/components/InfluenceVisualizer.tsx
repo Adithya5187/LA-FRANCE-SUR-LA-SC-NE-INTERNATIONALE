@@ -74,7 +74,7 @@ export const InfluenceVisualizer: React.FC = () => {
         <div className="flex flex-col md:flex-row md:items-center justify-between pb-6 mb-6 border-b border-white/10 gap-4">
           <div>
             <span className="text-xs font-semibold text-blue-400 uppercase tracking-widest">
-              Pillier Actif
+              Pilier Actif
             </span>
             <h4 className="text-xl sm:text-2xl font-bold text-white mt-1">
               {activePillar.name}

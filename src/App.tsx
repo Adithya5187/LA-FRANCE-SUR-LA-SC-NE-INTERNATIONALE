@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CHAPTERS, Chapter } from './data/chapters';
 import { Hero } from './components/Hero';
 import { Navigation } from './components/Navigation';
@@ -10,7 +10,7 @@ import { UnitedNations } from './chapters/UnitedNations';
 import { NATO } from './chapters/NATO';
 import { WorldPeace } from './chapters/WorldPeace';
 import { Conclusion } from './chapters/Conclusion';
-import { calculateElementProgress } from './utils/scrollProgress';
+import { gsap, ScrollTrigger } from './utils/gsap';
 
 export function App() {
   const [activeChapterId, setActiveChapterId] = useState<string>('chapitre-01');
@@ -29,53 +29,49 @@ export function App() {
   const currentChapterIndex = CHAPTERS.findIndex((c) => c.id === activeChapterId);
   const activeChapter = CHAPTERS[currentChapterIndex >= 0 ? currentChapterIndex : 0];
 
-  // Scroll listener to update independent progress and active chapter in real time
-  const handleScroll = useCallback(() => {
-    const newProgresses: Record<string, number> = {};
-    const newCompleted: Record<string, boolean> = {};
-    let currentActive = activeChapterId;
+  // GSAP ScrollTrigger integration for independent chapter progress and viewport tracking
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      CHAPTERS.forEach((chap) => {
+        const el = document.getElementById(chap.id);
+        if (!el) return;
 
-    CHAPTERS.forEach((chap, idx) => {
-      const el = document.getElementById(chap.id);
-      if (el) {
-        const prog = calculateElementProgress(el);
-        newProgresses[chap.id] = prog;
-        if (prog >= 0.98) {
-          newCompleted[chap.id] = true;
-        }
-
-        const rect = el.getBoundingClientRect();
-        // If element is prominently in the middle/upper portion of the screen
-        if (rect.top <= window.innerHeight * 0.45 && rect.bottom >= window.innerHeight * 0.25) {
-          currentActive = chap.id;
-        }
-      }
+        ScrollTrigger.create({
+          trigger: el,
+          start: 'top 75%',
+          end: 'bottom 25%',
+          onUpdate: (self) => {
+            const prog = Math.min(1, Math.max(0, self.progress));
+            setChapterProgresses((prev) => ({
+              ...prev,
+              [chap.id]: prog,
+            }));
+            if (prog >= 0.92) {
+              setCompletedChapters((prev) => ({
+                ...prev,
+                [chap.id]: true,
+              }));
+            }
+          },
+          onToggle: (self) => {
+            if (self.isActive) {
+              setActiveChapterId(chap.id);
+            }
+          },
+        });
+      });
     });
 
-    setChapterProgresses((prev) => ({ ...prev, ...newProgresses }));
-    setCompletedChapters((prev) => ({ ...prev, ...newCompleted }));
-    if (currentActive !== activeChapterId) {
-      setActiveChapterId(currentActive);
-    }
-  }, [activeChapterId]);
+    // Refresh triggers after initial render
+    const timer = setTimeout(() => {
+      ScrollTrigger.refresh();
+    }, 250);
 
-  useEffect(() => {
-    let ticking = false;
-    const onScroll = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          handleScroll();
-          ticking = false;
-        });
-        ticking = true;
-      }
+    return () => {
+      clearTimeout(timer);
+      ctx.revert();
     };
-
-    window.addEventListener('scroll', onScroll, { passive: true });
-    handleScroll(); // Initial check
-
-    return () => window.removeEventListener('scroll', onScroll);
-  }, [handleScroll]);
+  }, []);
 
   // Navigate to chapter by ID
   const scrollToChapter = (chapterId: string) => {
@@ -83,6 +79,7 @@ export function App() {
     if (el) {
       el.scrollIntoView({ behavior: 'smooth' });
       setActiveChapterId(chapterId);
+      setTimeout(() => ScrollTrigger.refresh(), 500);
     }
   };
 
@@ -203,7 +200,7 @@ export function App() {
             }}
           />
 
-          {/* Chapter 05: Défis de la Paix Mondiale */}
+          {/* Chapter 05: Paix & Crises Mondiales */}
           <WorldPeace
             chapter={CHAPTERS[4]}
             progress={chapterProgresses['chapitre-05'] || 0}
@@ -215,7 +212,7 @@ export function App() {
             }}
           />
 
-          {/* Chapter 06: Conclusion & Synthèse */}
+          {/* Chapter 06: Conclusion & Rayonnement */}
           <Conclusion
             chapter={CHAPTERS[5]}
             progress={chapterProgresses['chapitre-06'] || 0}
@@ -227,21 +224,6 @@ export function App() {
             }}
           />
         </main>
-
-        {/* Global Footer */}
-        <footer className="w-full border-t border-white/10 py-10 bg-[#0B1B33]/80 backdrop-blur-md text-center text-xs text-slate-400">
-          <div className="max-w-4xl mx-auto px-6 space-y-2">
-            <div className="flex justify-center items-center gap-2 font-mono text-[11px] uppercase tracking-wider text-slate-300">
-              <span className="w-2 h-2 rounded-full bg-[#244B85]" />
-              <span className="w-2 h-2 rounded-full bg-white" />
-              <span className="w-2 h-2 rounded-full bg-[#D62839]" />
-              <span>La France sur la Scène Internationale • Projet de Présentation Universitaire</span>
-            </div>
-            <p className="text-slate-400">
-              6 Chapitres thématiques • Soutenance orale de 1,5 minute par intervenant • Conçu selon les principes du design documentaire cinématique
-            </p>
-          </div>
-        </footer>
       </div>
     </div>
   );

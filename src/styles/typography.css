@@ -27,11 +27,10 @@
   --color-mint: #34D399;
 }
 
-/* @font-face placeholder for Broadway font */
+/* @font-face definition for Broadway font */
 @font-face {
   font-family: 'Broadway';
   src: local('Broadway'),
-       url('/assets/fonts/broadway.woff2') format('woff2'),
        url('/assets/fonts/broadway.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
