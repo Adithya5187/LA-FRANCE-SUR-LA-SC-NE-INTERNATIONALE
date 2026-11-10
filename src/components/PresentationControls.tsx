@@ -1,5 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { Maximize, Minimize, ArrowUp, ChevronLeft, ChevronRight, Mic, HelpCircle, Eye, EyeOff } from 'lucide-react';
+import {
+  Maximize,
+  Minimize,
+  ArrowUp,
+  ChevronLeft,
+  ChevronRight,
+  Mic,
+  HelpCircle,
+  Eye,
+  EyeOff,
+  Timer,
+  Play,
+  Pause,
+  RotateCcw,
+} from 'lucide-react';
 import { Chapter } from '../data/chapters';
 
 interface PresentationControlsProps {
@@ -18,6 +32,37 @@ export const PresentationControls: React.FC<PresentationControlsProps> = ({
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showKeyboardHelp, setShowKeyboardHelp] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
+
+  // Presenter 1:30 (90 seconds) Countdown Timer
+  const [showTimer, setShowTimer] = useState(false);
+  const [timerSeconds, setTimerSeconds] = useState(90);
+  const [isTimerRunning, setIsTimerRunning] = useState(false);
+
+  useEffect(() => {
+    let interval: ReturnType<typeof setInterval> | null = null;
+    if (isTimerRunning && timerSeconds > 0) {
+      interval = setInterval(() => {
+        setTimerSeconds((prev) => Math.max(0, prev - 1));
+      }, 1000);
+    } else if (timerSeconds === 0) {
+      setIsTimerRunning(false);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isTimerRunning, timerSeconds]);
+
+  // Reset timer whenever the chapter changes for the new speaker
+  useEffect(() => {
+    setTimerSeconds(90);
+    setIsTimerRunning(false);
+  }, [currentChapterIndex]);
+
+  const formatTimer = (sec: number) => {
+    const mins = Math.floor(sec / 60);
+    const remainder = sec % 60;
+    return `${mins.toString().padStart(2, '0')}:${remainder.toString().padStart(2, '0')}`;
+  };
 
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -102,6 +147,22 @@ export const PresentationControls: React.FC<PresentationControlsProps> = ({
 
             <div className="w-[1px] h-6 bg-white/10 mx-1" />
 
+            {/* Presenter 1:30 Timer Button */}
+            <button
+              onClick={() => setShowTimer(!showTimer)}
+              aria-label="Minuteur de temps de parole (1.5 min)"
+              className={`p-2 rounded-xl text-xs font-medium border transition-all flex items-center gap-1.5 ${
+                showTimer
+                  ? 'bg-amber-500/20 text-amber-300 border-amber-400/40 shadow-lg'
+                  : 'bg-white/5 hover:bg-white/15 text-slate-300 hover:text-white border-transparent'
+              }`}
+            >
+              <Timer className="w-4 h-4 text-amber-400" />
+              <span className="font-mono font-bold text-xs">
+                {formatTimer(timerSeconds)}
+              </span>
+            </button>
+
             {/* Speaker Script Drawer Toggle */}
             <button
               onClick={onToggleScriptDrawer}
@@ -141,6 +202,49 @@ export const PresentationControls: React.FC<PresentationControlsProps> = ({
           </div>
         )}
       </div>
+
+      {/* Floating Minuteur Popup when active */}
+      {showTimer && !isMinimized && (
+        <div className="fixed top-20 right-4 z-40 p-3.5 rounded-2xl bg-[#0B1B33]/95 border border-amber-500/30 backdrop-blur-xl shadow-2xl flex items-center gap-3 animate-in fade-in duration-200">
+          <div className="text-left">
+            <span className="text-[10px] text-slate-400 uppercase font-mono block">
+              Temps Orateur ({chapters[currentChapterIndex]?.presenter || 'Présentateur'})
+            </span>
+            <span
+              className={`font-mono text-xl font-black ${
+                timerSeconds === 0
+                  ? 'text-red-400 animate-pulse'
+                  : timerSeconds <= 30
+                  ? 'text-amber-400'
+                  : 'text-white'
+              }`}
+            >
+              {formatTimer(timerSeconds)}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-1.5 ml-2">
+            <button
+              onClick={() => setIsTimerRunning(!isTimerRunning)}
+              aria-label={isTimerRunning ? "Pause" : "Démarrer"}
+              className="p-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white transition-all"
+            >
+              {isTimerRunning ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
+            </button>
+
+            <button
+              onClick={() => {
+                setTimerSeconds(90);
+                setIsTimerRunning(false);
+              }}
+              aria-label="Réinitialiser"
+              className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white transition-all"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Keyboard Shortcuts Modal */}
       {showKeyboardHelp && (
@@ -187,3 +291,4 @@ export const PresentationControls: React.FC<PresentationControlsProps> = ({
   );
 };
 
+export default PresentationControls;
